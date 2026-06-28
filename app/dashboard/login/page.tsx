@@ -45,7 +45,7 @@ export default function LoginPage() {
   return (
     <div className="page-shell-dashboard flex min-h-dvh items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Card className="welcome-card">
+        <Card className="border-border/80 bg-card/90 shadow-lg ring-1 ring-foreground/[0.04] backdrop-blur-sm">
           <CardHeader className="space-y-3">
             <div className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <Shield className="size-5" strokeWidth={2} />

@@ -23,7 +23,7 @@ function StatCard({
   };
 
   return (
-    <div className="stat-card">
+    <div className="rounded-xl border border-border/80 bg-card p-5 shadow-xs ring-1 ring-foreground/[0.03] transition-shadow duration-200 hover:shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-medium text-muted-foreground">{label}</p>

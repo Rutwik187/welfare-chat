@@ -41,7 +41,7 @@ export function ChatHeader({
   onEndSession,
 }: ChatHeaderProps) {
   return (
-    <header className="glass-header shrink-0">
+    <header className="sticky top-0 z-40 shrink-0 border-b border-border bg-card/80 backdrop-blur-xl supports-[backdrop-filter]:bg-card/70">
       <div className="mx-auto flex max-w-3xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div
@@ -62,7 +62,7 @@ export function ChatHeader({
           </div>
         </div>
 
-        <div className="header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -70,9 +70,9 @@ export function ChatHeader({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="header-account-trigger"
+                    className="h-9 max-w-[220px] gap-2 !rounded-sm border border-border/80 bg-card px-2 shadow-xs transition-colors hover:bg-muted/40 data-open:bg-muted/50 data-popup-open:bg-muted/50"
                   >
-                    <span className="header-account-avatar" aria-hidden>
+                    <span className="flex size-7 shrink-0 items-center justify-center !rounded-sm bg-primary/10 text-[0.65rem] font-semibold text-primary" aria-hidden>
                       {getInitials(session.studentName)}
                     </span>
                     <span className="truncate">{session.studentName}</span>
@@ -83,7 +83,7 @@ export function ChatHeader({
               <DropdownMenuContent
                 align="end"
                 sideOffset={8}
-                className="account-menu-content"
+                className="!w-60 !min-w-60 !rounded-md border border-border/80 bg-popover p-1.5 shadow-lg ring-1 ring-foreground/[0.04]"
               >
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="px-2.5 py-2 font-normal">

@@ -62,7 +62,7 @@ export function WelcomeForm({ onStart }: WelcomeFormProps) {
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-12 sm:px-6">
       <div className="w-full max-w-md">
-        <Card className="welcome-card">
+        <Card className="border-border/80 bg-card/90 shadow-lg ring-1 ring-foreground/[0.04] backdrop-blur-sm">
           <CardHeader className="space-y-3 pb-2">
             <p className="text-xs font-semibold tracking-widest text-primary uppercase">
               Confidential support

@@ -175,39 +175,6 @@
       var(--background);
   }
 
-  .glass-header {
-    @apply sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-xl supports-[backdrop-filter]:bg-card/70;
-  }
-
-  .header-actions {
-    @apply flex shrink-0 items-center gap-2;
-  }
-
-  .header-account-trigger {
-    @apply h-9 max-w-[220px] gap-2 !rounded-sm border border-border/80 bg-card px-2 shadow-xs transition-colors hover:bg-muted/40 data-open:bg-muted/50 data-popup-open:bg-muted/50;
-  }
-
-  .header-account-avatar {
-    @apply flex size-7 shrink-0 items-center justify-center !rounded-sm bg-primary/10 text-[0.65rem] font-semibold text-primary;
-  }
-
-  .account-menu-content {
-    @apply !w-60 !min-w-60 !rounded-md border border-border/80 bg-popover p-1.5 shadow-lg ring-1 ring-foreground/[0.04];
-  }
-
-  .header-action-bar {
-    @apply flex shrink-0 items-center gap-1 rounded-md border border-border/80 bg-muted/30 p-1;
-  }
-
-  .header-action-bar > a,
-  .header-action-bar > button {
-    @apply h-9 !rounded-sm;
-  }
-
-  .stat-card {
-    @apply rounded-xl border border-border/80 bg-card p-5 shadow-xs ring-1 ring-foreground/[0.03] transition-shadow duration-200 hover:shadow-sm;
-  }
-
   .data-table-shell {
     @apply overflow-hidden rounded-xl border border-border/80 bg-card shadow-xs ring-1 ring-foreground/[0.03];
   }
@@ -232,10 +199,6 @@
     @apply bg-muted/30;
   }
 
-  .student-avatar {
-    @apply flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary;
-  }
-
   .priority-dot {
     @apply size-2 shrink-0 rounded-full;
   }
@@ -257,10 +220,6 @@
     @apply border-l-[3px] border-l-destructive bg-destructive/[0.04] hover:bg-destructive/[0.07]!;
   }
 
-  .welcome-card {
-    @apply border-border/80 bg-card/90 shadow-lg ring-1 ring-foreground/[0.04] backdrop-blur-sm;
-  }
-
   .chat-surface {
     background:
       radial-gradient(
@@ -269,6 +228,10 @@
         transparent 65%
       ),
       var(--welfare-surface);
+  }
+
+  .chat-input-dock {
+    @apply shrink-0 border-t border-border/60 bg-[color-mix(in_oklch,var(--welfare-surface),var(--background)_12%)] pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-sm;
   }
 
   @media (prefers-reduced-motion: reduce) {

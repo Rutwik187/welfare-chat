@@ -149,15 +149,15 @@ export function ChatInterface({
   );
 
   return (
-    <div className="chat-surface flex min-h-0 flex-1 flex-col">
+    <div className="chat-surface flex min-h-0 flex-1 flex-col overflow-hidden">
       {showEmergency ? (
-        <div className="mx-auto w-full max-w-3xl px-4 pt-4 sm:px-6">
+        <div className="mx-auto w-full max-w-3xl shrink-0 px-4 pt-4 sm:px-6">
           <EmergencyBanner studentEmail={studentEmail} />
         </div>
       ) : null}
 
       {requestError ? (
-        <div className="mx-auto w-full max-w-3xl px-4 pt-4 sm:px-6">
+        <div className="mx-auto w-full max-w-3xl shrink-0 px-4 pt-4 sm:px-6">
           <Alert variant="destructive">
             <AlertCircle className="size-4" />
             <AlertTitle>Could not get a reply</AlertTitle>
@@ -166,9 +166,9 @@ export function ChatInterface({
         </div>
       ) : null}
 
-      <div className="relative mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col px-4 py-4 sm:px-6">
-        <Conversation className="flex-1">
-          <ConversationContent>
+      <div className="mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col overflow-hidden px-4 sm:px-6">
+        <Conversation className="min-h-0 flex-1">
+          <ConversationContent className="gap-8 px-0 pt-4 pb-2">
             {messages.map((message, index) => {
               const isLastAssistant =
                 message.role === "assistant" && index === messages.length - 1;
@@ -218,10 +218,10 @@ export function ChatInterface({
               );
             })}
           </ConversationContent>
-          <ConversationScrollButton />
+          <ConversationScrollButton className="bottom-24" />
         </Conversation>
 
-        <div className="mt-4 shrink-0 pb-2">
+        <div className="chat-input-dock -mx-4 px-4 sm:-mx-6 sm:px-6">
           <PromptInput onSubmit={handleSubmit}>
             <PromptInputTextarea
               value={input}

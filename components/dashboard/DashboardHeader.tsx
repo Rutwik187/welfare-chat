@@ -12,7 +12,7 @@ export function DashboardHeader() {
   }
 
   return (
-    <header className="glass-header shrink-0">
+    <header className="sticky top-0 z-40 shrink-0 border-b border-border bg-card/80 backdrop-blur-xl supports-[backdrop-filter]:bg-card/70">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <div
@@ -31,7 +31,7 @@ export function DashboardHeader() {
           </div>
         </div>
 
-        <div className="header-action-bar">
+        <div className="flex shrink-0 items-center gap-1 rounded-md border border-border/80 bg-muted/30 p-1">
           <Link
             href="/chat"
             className={buttonVariants({

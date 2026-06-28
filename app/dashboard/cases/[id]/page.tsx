@@ -35,7 +35,7 @@ export default async function CaseDetailPage({
 
   return (
     <div className="page-shell-dashboard min-h-dvh">
-      <header className="glass-header shrink-0">
+      <header className="sticky top-0 z-40 shrink-0 border-b border-border bg-card/80 backdrop-blur-xl supports-[backdrop-filter]:bg-card/70">
         <div className="mx-auto max-w-4xl space-y-3 px-4 py-3 sm:px-6">
           <Link
             href="/dashboard"
@@ -47,7 +47,7 @@ export default async function CaseDetailPage({
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-3">
-              <span className="student-avatar size-9 text-xs">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                 {getInitials(caseRow.studentName)}
               </span>
               <div className="min-w-0">

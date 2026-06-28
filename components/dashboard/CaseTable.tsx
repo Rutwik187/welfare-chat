@@ -195,7 +195,7 @@ export function CaseTable({ cases: rawCases }: CaseTableProps) {
                     href={`/dashboard/cases/${caseRow.id}`}
                     className="flex items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
-                    <span className="student-avatar" aria-hidden>
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary" aria-hidden>
                       {getInitials(caseRow.studentName)}
                     </span>
                     <span className="min-w-0">
