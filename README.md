@@ -3,12 +3,11 @@
 A conversational AI welfare assistant for university student support. Students chat in natural language; the server triages each message, applies safeguarding house rules in code, and either answers from a knowledge base, asks a clarifying question, or escalates to staff.
 
 ## Live demo
-
-Deploy with `vercel deploy`, then set your production URL here (e.g. `https://your-app.vercel.app`).
+https://welfare-chat.vercel.app/chat
 
 ## Staff login (assessment)
 
-- URL: `/dashboard/login`
+- URL: https://welfare-chat.vercel.app/dashboard/login
 - Email: `staff@example.com`
 - Password: `StaffPass123!`
 
