@@ -166,62 +166,62 @@ export function ChatInterface({
         </div>
       ) : null}
 
-      <div className="mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col overflow-hidden px-4 sm:px-6">
-        <Conversation className="min-h-0 flex-1">
-          <ConversationContent className="gap-8 px-0 pt-4 pb-2">
-            {messages.map((message, index) => {
-              const isLastAssistant =
-                message.role === "assistant" && index === messages.length - 1;
-              const hasText = messageHasText(message);
-              const showShimmer = isLastAssistant && isStreaming && !hasText;
-              const messageSources = visibleSources(message.metadata?.sources);
+      <Conversation className="min-h-0 flex-1">
+        <ConversationContent className="mx-auto w-full max-w-3xl gap-8 px-4 pt-4 pb-2 sm:px-6">
+          {messages.map((message, index) => {
+            const isLastAssistant =
+              message.role === "assistant" && index === messages.length - 1;
+            const hasText = messageHasText(message);
+            const showShimmer = isLastAssistant && isStreaming && !hasText;
+            const messageSources = visibleSources(message.metadata?.sources);
 
-              if (message.role === "assistant" && !hasText && !showShimmer) {
-                return null;
-              }
+            if (message.role === "assistant" && !hasText && !showShimmer) {
+              return null;
+            }
 
-              return (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent>
-                    {showShimmer ? (
-                      <Shimmer className="text-sm">Thinking…</Shimmer>
-                    ) : (
-                      message.parts.map((part, i) => {
-                        if (part.type === "text" && part.text.trim()) {
-                          return (
-                            <MessageResponse key={`${message.id}-${i}`}>
-                              {part.text}
-                            </MessageResponse>
-                          );
-                        }
-                        return null;
-                      })
-                    )}
-                    {message.role === "assistant" &&
-                    messageSources.length > 0 &&
-                    (!isLastAssistant || !isStreaming) ? (
-                      <Sources className="mt-2">
-                        <SourcesTrigger count={messageSources.length} />
-                        <SourcesContent>
-                          {messageSources.map((source) => (
-                            <Source
-                              href={source.url}
-                              key={source.url}
-                              title={source.title}
-                            />
-                          ))}
-                        </SourcesContent>
-                      </Sources>
-                    ) : null}
-                  </MessageContent>
-                </Message>
-              );
-            })}
-          </ConversationContent>
-          <ConversationScrollButton className="bottom-24" />
-        </Conversation>
+            return (
+              <Message from={message.role} key={message.id}>
+                <MessageContent>
+                  {showShimmer ? (
+                    <Shimmer className="text-sm">Thinking…</Shimmer>
+                  ) : (
+                    message.parts.map((part, i) => {
+                      if (part.type === "text" && part.text.trim()) {
+                        return (
+                          <MessageResponse key={`${message.id}-${i}`}>
+                            {part.text}
+                          </MessageResponse>
+                        );
+                      }
+                      return null;
+                    })
+                  )}
+                  {message.role === "assistant" &&
+                  messageSources.length > 0 &&
+                  (!isLastAssistant || !isStreaming) ? (
+                    <Sources className="mt-2">
+                      <SourcesTrigger count={messageSources.length} />
+                      <SourcesContent>
+                        {messageSources.map((source) => (
+                          <Source
+                            href={source.url}
+                            key={source.url}
+                            title={source.title}
+                          />
+                        ))}
+                      </SourcesContent>
+                    </Sources>
+                  ) : null}
+                </MessageContent>
+              </Message>
+            );
+          })}
+        </ConversationContent>
+        <ConversationScrollButton className="bottom-24" />
+      </Conversation>
 
-        <div className="chat-input-dock -mx-4 px-4 sm:-mx-6 sm:px-6">
+      <div className="chat-input-dock">
+        <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
           <PromptInput onSubmit={handleSubmit}>
             <PromptInputTextarea
               value={input}
