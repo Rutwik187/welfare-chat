@@ -8,6 +8,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { visibleSources } from "@/lib/ai/types";
+import { CitationLink } from "@/components/chat/CitationLink";
 import { ArrowLeft } from "lucide-react";
 
 function getInitials(name: string) {
@@ -114,14 +115,13 @@ export default async function CaseDetailPage({
                     <ul className="mt-3 space-y-1 border-t border-border/60 pt-3 text-xs text-muted-foreground">
                       {sources.map((source) => (
                         <li key={source.url}>
-                          <a
+                          <CitationLink
                             href={source.url}
-                            className="text-primary underline-offset-2 hover:underline"
-                            rel="noreferrer"
-                            target="_blank"
+                            title={source.title}
+                            className="inline text-primary underline-offset-2 hover:underline"
                           >
                             {source.title}
-                          </a>
+                          </CitationLink>
                         </li>
                       ))}
                     </ul>

@@ -17,6 +17,23 @@ export type KBArticle = {
   escalationNotes?: string;
 };
 
+export const CATEGORY_LABELS: Record<Category, string> = {
+  academic: "Academic",
+  financial: "Financial",
+  visa_immigration: "Visa & immigration",
+  housing: "Housing",
+  health_wellbeing: "Health & wellbeing",
+  other: "Other support",
+};
+
+export function getArticleBySlug(slug: string): KBArticle | undefined {
+  return KB_ARTICLES.find((article) => article.id === slug);
+}
+
+export function getInternalResourceArticles(): KBArticle[] {
+  return KB_ARTICLES.filter((article) => article.link.startsWith("/resources/"));
+}
+
 export const KB_ARTICLES: KBArticle[] = [
   {
     id: "student-visa",

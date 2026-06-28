@@ -21,11 +21,11 @@ import {
   type PromptInputMessage,
 } from "@/components/ai-elements/prompt-input";
 import {
-  Source,
   Sources,
   SourcesContent,
   SourcesTrigger,
 } from "@/components/ai-elements/sources";
+import { CitationLink } from "@/components/chat/CitationLink";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { EmergencyBanner } from "@/components/chat/EmergencyBanner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -203,7 +203,7 @@ export function ChatInterface({
                       <SourcesTrigger count={messageSources.length} />
                       <SourcesContent>
                         {messageSources.map((source) => (
-                          <Source
+                          <CitationLink
                             href={source.url}
                             key={source.url}
                             title={source.title}

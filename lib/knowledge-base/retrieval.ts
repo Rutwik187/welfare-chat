@@ -1,5 +1,6 @@
 import type { Category } from "./articles";
 import { KB_ARTICLES, type KBArticle } from "./articles";
+import { resolveCitationUrl } from "./urls";
 
 const SCORE_THRESHOLD = 2;
 const MIN_CONTENT_SCORE = 2;
@@ -70,7 +71,10 @@ export function retrieveArticles(
 
   const top = scored[0];
   const articles = scored.map(({ article }) => article);
-  const kbLinks = articles.map((a) => ({ title: a.title, url: a.link }));
+  const kbLinks = articles.map((a) => ({
+    title: a.title,
+    url: resolveCitationUrl(a.link),
+  }));
 
   return {
     articles,
