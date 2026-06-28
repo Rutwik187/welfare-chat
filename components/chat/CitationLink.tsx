@@ -27,8 +27,13 @@ export function CitationLink({
     >
       {children ?? (
         <>
-          <BookIcon className="h-4 w-4" />
-          <span className="block font-medium">{title}</span>
+          <BookIcon className="h-4 w-4 shrink-0" />
+          <span className="min-w-0">
+            <span className="block font-medium">{title}</span>
+            <span className="block break-all text-muted-foreground">
+              {linkProps.href}
+            </span>
+          </span>
         </>
       )}
     </a>

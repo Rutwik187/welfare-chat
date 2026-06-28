@@ -91,7 +91,7 @@ export function formatKBContext(articles: KBArticle[]): string {
   return articles
     .map(
       (a) =>
-        `### ${a.title}\nLink: ${a.link}\n${a.summary}${a.escalationNotes ? `\nNote: ${a.escalationNotes}` : ""}`
+        `### ${a.title}\nLink: ${resolveCitationUrl(a.link)}\n${a.summary}${a.escalationNotes ? `\nNote: ${a.escalationNotes}` : ""}`
     )
     .join("\n\n");
 }

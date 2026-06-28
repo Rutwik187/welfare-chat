@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { resolveCitationUrl } from "@/lib/knowledge-base/urls";
 import { cjk } from "@streamdown/cjk";
 import { code } from "@streamdown/code";
 import { math } from "@streamdown/math";
@@ -323,6 +324,24 @@ export type MessageResponseProps = ComponentProps<typeof Streamdown>;
 
 const streamdownPlugins = { cjk, code, math, mermaid };
 
+function MarkdownLink({
+  href,
+  children,
+  ...props
+}: ComponentProps<"a">) {
+  const resolvedHref = href ? resolveCitationUrl(href) : href;
+
+  return (
+    <a href={resolvedHref} rel="noreferrer" target="_blank" {...props}>
+      {children}
+    </a>
+  );
+}
+
+const markdownComponents = {
+  a: MarkdownLink,
+} as ComponentProps<typeof Streamdown>["components"];
+
 export const MessageResponse = memo(
   ({ className, ...props }: MessageResponseProps) => (
     <Streamdown
@@ -330,7 +349,9 @@ export const MessageResponse = memo(
         "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
         className
       )}
+      components={markdownComponents}
       plugins={streamdownPlugins}
+      urlTransform={(url) => resolveCitationUrl(url)}
       {...props}
     />
   ),

@@ -27,6 +27,7 @@ export function buildHandleNowPrompt(kbContext: string): string {
 Rules:
 - Answer ONLY using the knowledge base below — synthesise in your own words, never paste verbatim
 - Only cite links that appear in the knowledge base — do not invent URLs or facts
+- When citing a resource, use the full Link URL exactly as shown in the knowledge base
 - Be honest about what you can and cannot do
 - Make the next step obvious and actionable
 - If the knowledge base cannot adequately answer, say a team member will follow up instead

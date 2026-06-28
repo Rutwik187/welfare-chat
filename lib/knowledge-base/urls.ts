@@ -3,29 +3,6 @@ export function getPublicBaseUrl(): string {
   return url.replace(/\/$/, "");
 }
 
-export function getResourceSlug(link: string): string | null {
-  const path = link.startsWith("http")
-    ? (() => {
-        try {
-          return new URL(link).pathname;
-        } catch {
-          return null;
-        }
-      })()
-    : link;
-
-  if (!path?.startsWith("/resources/")) {
-    return null;
-  }
-
-  const slug = path.slice("/resources/".length).replace(/\/$/, "");
-  return slug || null;
-}
-
-export function isAppResourceUrl(url: string): boolean {
-  return getResourceSlug(url) !== null;
-}
-
 export function resolveCitationUrl(link: string): string {
   if (
     link.startsWith("http://") ||
@@ -36,6 +13,10 @@ export function resolveCitationUrl(link: string): string {
   }
 
   if (link.startsWith("/")) {
+    if (typeof window !== "undefined") {
+      return `${window.location.origin}${link}`;
+    }
+
     return `${getPublicBaseUrl()}${link}`;
   }
 
@@ -44,14 +25,12 @@ export function resolveCitationUrl(link: string): string {
 
 export function getCitationLinkProps(url: string): {
   href: string;
-  target?: "_blank";
-  rel?: "noreferrer";
+  target: "_blank";
+  rel: "noreferrer";
 } {
-  const slug = getResourceSlug(url);
-
-  if (slug) {
-    return { href: `/resources/${slug}` };
-  }
-
-  return { href: url, target: "_blank", rel: "noreferrer" };
+  return {
+    href: resolveCitationUrl(url),
+    target: "_blank",
+    rel: "noreferrer",
+  };
 }
