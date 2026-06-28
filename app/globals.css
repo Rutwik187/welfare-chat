@@ -151,27 +151,21 @@
   .page-shell {
     @apply relative min-h-dvh;
     background:
-      radial-gradient(
-        ellipse 80% 50% at 50% -20%,
+      radial-gradient(ellipse 80% 50% at 50% -20%,
         var(--welfare-glow),
-        transparent 70%
-      ),
+        transparent 70%),
       var(--background);
   }
 
   .page-shell-dashboard {
     @apply relative min-h-dvh;
     background:
-      radial-gradient(
-        ellipse 60% 40% at 100% 0%,
+      radial-gradient(ellipse 60% 40% at 100% 0%,
         oklch(0.72 0.06 240 / 0.12),
-        transparent 60%
-      ),
-      radial-gradient(
-        ellipse 50% 30% at 0% 100%,
+        transparent 60%),
+      radial-gradient(ellipse 50% 30% at 0% 100%,
         oklch(0.75 0.05 200 / 0.08),
-        transparent 55%
-      ),
+        transparent 55%),
       var(--background);
   }
 
@@ -222,11 +216,9 @@
 
   .chat-surface {
     background:
-      radial-gradient(
-        ellipse 70% 50% at 50% 0%,
+      radial-gradient(ellipse 70% 50% at 50% 0%,
         var(--welfare-glow),
-        transparent 65%
-      ),
+        transparent 65%),
       var(--welfare-surface);
   }
 
