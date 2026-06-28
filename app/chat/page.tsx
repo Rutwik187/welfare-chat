@@ -1,16 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { ChatHeader } from "@/components/chat/ChatHeader";
 import { ChatInterface } from "@/components/chat/ChatInterface";
 import { WelcomeForm } from "@/components/chat/WelcomeForm";
-import { buttonVariants } from "@/components/ui/button";
 
 type Session = {
   studentName: string;
   studentEmail: string;
   conversationId: string;
 } | null;
+
+function clearSession() {
+  sessionStorage.removeItem("conversationId");
+  sessionStorage.removeItem("studentName");
+  sessionStorage.removeItem("studentEmail");
+}
 
 export default function ChatPage() {
   const [session, setSession] = useState<Session>(null);
@@ -27,23 +32,34 @@ export default function ChatPage() {
     setReady(true);
   }, []);
 
+  function handleStartNewChat() {
+    clearSession();
+    setSession(null);
+  }
+
+  function handleEndSession() {
+    clearSession();
+    setSession(null);
+  }
+
   if (!ready) {
     return null;
   }
 
   return (
-    <div className="min-h-screen">
-      <nav className="flex items-center justify-between border-b bg-white px-4 py-2">
-        <span className="text-sm font-medium text-teal-900">
-          University Welfare Assistant
-        </span>
-        <Link
-          href="/dashboard/login"
-          className={buttonVariants({ variant: "ghost", size: "sm" })}
-        >
-          Staff login
-        </Link>
-      </nav>
+    <div className="page-shell flex min-h-dvh flex-col">
+      <ChatHeader
+        session={
+          session
+            ? {
+                studentName: session.studentName,
+                studentEmail: session.studentEmail,
+              }
+            : null
+        }
+        onStartNewChat={handleStartNewChat}
+        onEndSession={handleEndSession}
+      />
 
       {session ? (
         <ChatInterface

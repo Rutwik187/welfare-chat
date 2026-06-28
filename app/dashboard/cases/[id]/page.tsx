@@ -8,6 +8,15 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { visibleSources } from "@/lib/ai/types";
+import { ArrowLeft } from "lucide-react";
+
+function getInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
 
 export default async function CaseDetailPage({
   params,
@@ -25,75 +34,89 @@ export default async function CaseDetailPage({
   const { case: caseRow, messages, triage } = data;
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <header className="border-b bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <div>
-            <Link
-              href="/dashboard"
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "sm" }),
-                "mb-2 -ml-2"
-              )}
-            >
-              ← Back to queue
-            </Link>
-            <h1 className="text-xl font-semibold">{caseRow.studentName}</h1>
-            <p className="text-sm text-muted-foreground">
-              {caseRow.studentEmail}
-            </p>
+    <div className="page-shell-dashboard min-h-dvh">
+      <header className="glass-header shrink-0">
+        <div className="mx-auto max-w-4xl space-y-3 px-4 py-3 sm:px-6">
+          <Link
+            href="/dashboard"
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            <ArrowLeft className="size-4" data-icon="inline-start" />
+            Back to queue
+          </Link>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="student-avatar size-9 text-xs">
+                {getInitials(caseRow.studentName)}
+              </span>
+              <div className="min-w-0">
+                <h1 className="truncate text-sm font-semibold tracking-tight sm:text-base">
+                  {caseRow.studentName}
+                </h1>
+                <p className="truncate text-xs text-muted-foreground sm:text-sm">
+                  {caseRow.studentEmail}
+                </p>
+              </div>
+            </div>
+            <CaseStatusForm caseId={caseRow.id} value={caseRow.status} />
           </div>
-          <CaseStatusForm caseId={caseRow.id} value={caseRow.status} />
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl space-y-6 p-6">
-        <Card>
+      <main className="mx-auto max-w-4xl space-y-6 px-6 py-8">
+        <Card className="border-border/80 shadow-xs ring-1 ring-foreground/[0.03]">
           <CardHeader>
             <div className="flex flex-wrap gap-2">
               {caseRow.safeguarding ? (
                 <Badge variant="destructive">Safeguarding</Badge>
               ) : null}
-              <Badge>{caseRow.urgency}</Badge>
-              <Badge variant="outline">
+              <Badge className="capitalize">{caseRow.urgency}</Badge>
+              <Badge variant="outline" className="capitalize">
                 {caseRow.category.replace(/_/g, " ")}
               </Badge>
             </div>
             <CardTitle className="text-base font-medium">Staff summary</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm leading-relaxed">{caseRow.staffSummary}</p>
+            <p className="text-sm leading-relaxed text-foreground/90">
+              {caseRow.staffSummary}
+            </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/80 shadow-xs ring-1 ring-foreground/[0.03]">
           <CardHeader>
             <CardTitle>Conversation</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {messages.map((message) => {
               const sources = visibleSources(message.sources ?? undefined);
+              const isUser = message.role === "user";
 
               return (
                 <div
                   key={message.id}
-                  className={
-                    message.role === "user"
-                      ? "ml-8 rounded-lg bg-secondary p-3 text-sm"
-                      : "mr-8 rounded-lg border bg-white p-3 text-sm"
-                  }
+                  className={cn(
+                    "rounded-xl border p-4 text-sm",
+                    isUser
+                      ? "ml-6 border-primary/15 bg-primary/[0.04]"
+                      : "mr-6 border-border/80 bg-card"
+                  )}
                 >
-                  <p className="mb-1 text-xs font-medium capitalize text-muted-foreground">
+                  <p className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
                     {message.role}
                   </p>
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  <p className="leading-relaxed whitespace-pre-wrap">
+                    {message.content}
+                  </p>
                   {sources.length > 0 ? (
-                    <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    <ul className="mt-3 space-y-1 border-t border-border/60 pt-3 text-xs text-muted-foreground">
                       {sources.map((source) => (
                         <li key={source.url}>
                           <a
                             href={source.url}
-                            className="underline"
+                            className="text-primary underline-offset-2 hover:underline"
                             rel="noreferrer"
                             target="_blank"
                           >
@@ -109,19 +132,22 @@ export default async function CaseDetailPage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-border/80 shadow-xs ring-1 ring-foreground/[0.03]">
           <CardHeader>
             <CardTitle>Triage history</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2">
             {triage.map((item, index) => (
-              <details key={index} className="rounded border p-3 text-sm">
-                <summary className="cursor-pointer font-medium">
+              <details
+                key={index}
+                className="group rounded-xl border border-border/80 bg-muted/20 p-4 text-sm transition-colors open:bg-muted/30"
+              >
+                <summary className="cursor-pointer font-medium capitalize">
                   {item.disposition.replace("_", " ")} — {item.category} (
                   {item.urgency})
                   {item.safeguarding ? " · safeguarding" : ""}
                 </summary>
-                <p className="mt-2 text-muted-foreground">
+                <p className="mt-3 leading-relaxed text-muted-foreground">
                   {item.messageContent}
                 </p>
               </details>

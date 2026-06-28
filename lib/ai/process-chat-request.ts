@@ -1,7 +1,6 @@
 import {
   createUIMessageStream,
   createUIMessageStreamResponse,
-  toUIMessageStream,
   type UIMessage,
   type UIMessageStreamWriter,
 } from "ai";
@@ -14,8 +13,7 @@ import {
   triageResults,
 } from "@/lib/db/schema";
 import { applyHouseRules, shouldCreateCase } from "@/lib/ai/house-rules";
-import { isAiQuotaOrRateLimitError } from "@/lib/ai/errors";
-import { getFallbackAssistantMessage } from "@/lib/ai/fallback-messages";
+import { getFallbackAssistantMessage, getStreamErrorMessage } from "@/lib/ai/fallback-messages";
 import {
   computePriorityScore,
   generateStaffSummary,
@@ -52,39 +50,45 @@ async function streamAssistantOrFallback(
   }
 ) {
   const { sources, ...streamOptions } = options;
+  const fallbackContext = {
+    triage: streamOptions.triage,
+    studentName: streamOptions.studentName,
+    studentEmail: streamOptions.studentEmail,
+  };
+  const fallbackText = getFallbackAssistantMessage(fallbackContext);
+  const messageId = generateId();
 
   try {
     const result = streamAssistantResponse(streamOptions);
-    writer.merge(
-      toUIMessageStream({
-        stream: result.stream,
-        messageMetadata: ({ part }) => {
-          if (part.type === "start" && sources.length > 0) {
-            return { sources };
-          }
-        },
-        onError: (error) => {
-          console.error("[chat] response stream error:", error);
-          return getFallbackAssistantMessage({
-            triage: streamOptions.triage,
-            studentName: streamOptions.studentName,
-            studentEmail: streamOptions.studentEmail,
-          });
-        },
-      })
-    );
-  } catch (error) {
-    if (isAiQuotaOrRateLimitError(error)) {
-      console.warn("[chat] Gemini quota/rate limit — static fallback response");
+    let hasContent = false;
+
+    writer.write({ type: "text-start", id: messageId });
+
+    try {
+      for await (const chunk of result.textStream) {
+        if (!chunk) continue;
+        hasContent = true;
+        writer.write({ type: "text-delta", id: messageId, delta: chunk });
+      }
+    } catch (streamError) {
+      console.error("[chat] response stream error:", streamError);
+      const errorText = getStreamErrorMessage(streamError, fallbackContext);
+      writer.write({ type: "text-delta", id: messageId, delta: errorText });
+      hasContent = true;
     }
+
+    if (!hasContent) {
+      writer.write({ type: "text-delta", id: messageId, delta: fallbackText });
+    }
+
+    writer.write({ type: "text-end", id: messageId });
+    writeMessageSources(writer, sources);
+  } catch (error) {
+    console.error("[chat] response failed:", error);
     writeMessageSources(writer, sources);
     writeStaticAssistantText(
       writer,
-      getFallbackAssistantMessage({
-        triage: streamOptions.triage,
-        studentName: streamOptions.studentName,
-        studentEmail: streamOptions.studentEmail,
-      })
+      getStreamErrorMessage(error, fallbackContext)
     );
   }
 }

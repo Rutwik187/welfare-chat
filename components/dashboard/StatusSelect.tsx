@@ -12,16 +12,22 @@ type StatusSelectProps = {
   value: string;
   onChange: (status: string) => void;
   disabled?: boolean;
+  className?: string;
 };
 
-export function StatusSelect({ value, onChange, disabled }: StatusSelectProps) {
+export function StatusSelect({
+  value,
+  onChange,
+  disabled,
+  className,
+}: StatusSelectProps) {
   return (
     <Select
       value={value}
       onValueChange={(v) => v && onChange(v)}
       disabled={disabled}
     >
-      <SelectTrigger className="w-40">
+      <SelectTrigger className={className ?? "w-40"}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

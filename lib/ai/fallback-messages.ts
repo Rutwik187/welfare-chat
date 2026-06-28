@@ -1,4 +1,5 @@
 import type { FinalTriage } from "./schemas";
+import { isAiQuotaOrRateLimitError } from "./errors";
 
 export function getFallbackAssistantMessage(options: {
   triage: FinalTriage;
@@ -20,4 +21,19 @@ export function getFallbackAssistantMessage(options: {
   }
 
   return `Thank you, ${studentName}. I'm having a brief technical issue, but your message has been received and a member of our team will follow up with you at ${studentEmail} soon.`;
+}
+
+export function getStreamErrorMessage(
+  error: unknown,
+  options: {
+    triage: FinalTriage;
+    studentName: string;
+    studentEmail: string;
+  }
+): string {
+  if (isAiQuotaOrRateLimitError(error)) {
+    return `Hi ${options.studentName}, the assistant is temporarily unavailable due to high demand. Your message has been saved — a team member will follow up at ${options.studentEmail}. Please try again in a few minutes.`;
+  }
+
+  return getFallbackAssistantMessage(options);
 }

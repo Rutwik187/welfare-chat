@@ -1,4 +1,4 @@
-import { asc, desc, eq, ne } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   cases,
@@ -21,7 +21,7 @@ export type CaseRow = {
   updatedAt: Date;
 };
 
-export async function getOpenCases(): Promise<CaseRow[]> {
+export async function getCases(): Promise<CaseRow[]> {
   const rows = await db
     .select({
       case: cases,
@@ -29,8 +29,7 @@ export async function getOpenCases(): Promise<CaseRow[]> {
     })
     .from(cases)
     .innerJoin(conversations, eq(cases.conversationId, conversations.id))
-    .where(ne(cases.status, "resolved"))
-    .orderBy(desc(cases.priorityScore), cases.createdAt);
+    .orderBy(desc(cases.createdAt));
 
   return rows.map(({ case: caseRow, conversation }) => ({
     ...caseRow,
@@ -38,6 +37,9 @@ export async function getOpenCases(): Promise<CaseRow[]> {
     studentEmail: conversation.studentEmail,
   }));
 }
+
+/** @deprecated Use getCases */
+export const getOpenCases = getCases;
 
 export type CaseDetail = {
   case: CaseRow;

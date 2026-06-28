@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/components/ai-elements/message";
 import {
   PromptInput,
+  PromptInputFooter,
   PromptInputTextarea,
   PromptInputSubmit,
   type PromptInputMessage,
@@ -27,14 +28,42 @@ import {
 } from "@/components/ai-elements/sources";
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { EmergencyBanner } from "@/components/chat/EmergencyBanner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { WelfareUIMessage } from "@/lib/ai/types";
 import { visibleSources } from "@/lib/ai/types";
+import { AlertCircle } from "lucide-react";
 
 type ChatInterfaceProps = {
   conversationId: string;
   studentName: string;
   studentEmail: string;
 };
+
+const GENERIC_ERROR_MESSAGE =
+  "The assistant could not reply right now. Your message was saved — a team member will follow up with you soon. Please try again in a few minutes.";
+
+function getClientErrorMessage(error: Error): string {
+  const message = error.message.toLowerCase();
+
+  if (
+    message.includes("quota") ||
+    message.includes("rate limit") ||
+    message.includes("429") ||
+    message.includes("resource_exhausted")
+  ) {
+    return "The assistant is temporarily busy due to high demand. Your message was saved — please try again in a few minutes.";
+  }
+
+  if (message.includes("network") || message.includes("fetch")) {
+    return "Unable to reach the assistant. Check your connection and try again.";
+  }
+
+  return GENERIC_ERROR_MESSAGE;
+}
+
+function messageHasText(message: WelfareUIMessage) {
+  return message.parts.some((part) => part.type === "text" && part.text.trim());
+}
 
 function buildWelcomeMessage(studentName: string): WelfareUIMessage {
   return {
@@ -56,6 +85,7 @@ export function ChatInterface({
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showEmergency, setShowEmergency] = useState(false);
+  const [requestError, setRequestError] = useState<string | null>(null);
 
   const initialMessages = useMemo(
     () => [buildWelcomeMessage(studentName)],
@@ -88,13 +118,30 @@ export function ChatInterface({
     messages: initialMessages,
     transport,
     onData: handleData,
+    onError: (error) => {
+      setRequestError(getClientErrorMessage(error));
+    },
+    onFinish: () => {
+      setRequestError(null);
+    },
   });
 
   const isStreaming = status === "streaming" || status === "submitted";
 
+  useEffect(() => {
+    if (isStreaming) return;
+
+    const lastMessage = messages.at(-1);
+    if (lastMessage?.role !== "assistant") return;
+    if (messageHasText(lastMessage)) return;
+
+    setRequestError(GENERIC_ERROR_MESSAGE);
+  }, [isStreaming, messages]);
+
   const handleSubmit = useCallback(
     (message: PromptInputMessage) => {
       if (!message.text.trim() || isStreaming) return;
+      setRequestError(null);
       sendMessage({ text: message.text });
       setInput("");
     },
@@ -102,29 +149,36 @@ export function ChatInterface({
   );
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col bg-teal-50/30">
-      <header className="border-b bg-white px-4 py-4 shadow-sm">
-        <h1 className="text-lg font-semibold text-teal-950">
-          Welfare Assistant
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          A calm, confidential chat — a real person is available if you need one
-        </p>
-      </header>
+    <div className="chat-surface flex min-h-0 flex-1 flex-col">
+      {showEmergency ? (
+        <div className="mx-auto w-full max-w-3xl px-4 pt-4 sm:px-6">
+          <EmergencyBanner studentEmail={studentEmail} />
+        </div>
+      ) : null}
 
-      {showEmergency ? <EmergencyBanner studentEmail={studentEmail} /> : null}
+      {requestError ? (
+        <div className="mx-auto w-full max-w-3xl px-4 pt-4 sm:px-6">
+          <Alert variant="destructive">
+            <AlertCircle className="size-4" />
+            <AlertTitle>Could not get a reply</AlertTitle>
+            <AlertDescription>{requestError}</AlertDescription>
+          </Alert>
+        </div>
+      ) : null}
 
-      <div className="relative mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-4">
+      <div className="relative mx-auto flex w-full max-w-3xl min-h-0 flex-1 flex-col px-4 py-4 sm:px-6">
         <Conversation className="flex-1">
           <ConversationContent>
             {messages.map((message, index) => {
               const isLastAssistant =
                 message.role === "assistant" && index === messages.length - 1;
-              const hasText = message.parts.some(
-                (p) => p.type === "text" && p.text.length > 0
-              );
+              const hasText = messageHasText(message);
               const showShimmer = isLastAssistant && isStreaming && !hasText;
               const messageSources = visibleSources(message.metadata?.sources);
+
+              if (message.role === "assistant" && !hasText && !showShimmer) {
+                return null;
+              }
 
               return (
                 <Message from={message.role} key={message.id}>
@@ -133,7 +187,7 @@ export function ChatInterface({
                       <Shimmer className="text-sm">Thinking…</Shimmer>
                     ) : (
                       message.parts.map((part, i) => {
-                        if (part.type === "text") {
+                        if (part.type === "text" && part.text.trim()) {
                           return (
                             <MessageResponse key={`${message.id}-${i}`}>
                               {part.text}
@@ -175,7 +229,9 @@ export function ChatInterface({
               placeholder="Describe what you need help with…"
               disabled={isStreaming}
             />
-            <PromptInputSubmit disabled={isStreaming || !input.trim()} />
+            <PromptInputFooter className="justify-end">
+              <PromptInputSubmit disabled={isStreaming || !input.trim()} />
+            </PromptInputFooter>
           </PromptInput>
         </div>
       </div>
