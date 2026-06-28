@@ -2,6 +2,7 @@ import type { Category } from "./articles";
 import { KB_ARTICLES, type KBArticle } from "./articles";
 
 const SCORE_THRESHOLD = 2;
+const MIN_CONTENT_SCORE = 2;
 
 function tokenize(text: string): string[] {
   return text
@@ -11,9 +12,14 @@ function tokenize(text: string): string[] {
     .filter((word) => word.length > 2);
 }
 
-function scoreArticle(article: KBArticle, message: string, category: Category): number {
+function scoreArticle(
+  article: KBArticle,
+  message: string,
+  category: Category
+): { score: number; contentScore: number } {
   const tokens = tokenize(message);
   let score = 0;
+  let contentScore = 0;
 
   if (article.category === category) {
     score += 3;
@@ -23,10 +29,12 @@ function scoreArticle(article: KBArticle, message: string, category: Category): 
     const tagLower = tag.toLowerCase();
     if (message.toLowerCase().includes(tagLower)) {
       score += 4;
+      contentScore += 4;
     }
     for (const token of tokens) {
       if (tagLower.includes(token) || token.includes(tagLower)) {
         score += 1;
+        contentScore += 1;
       }
     }
   }
@@ -34,10 +42,11 @@ function scoreArticle(article: KBArticle, message: string, category: Category): 
   for (const token of tokens) {
     if (article.summary.toLowerCase().includes(token)) {
       score += 0.5;
+      contentScore += 0.5;
     }
   }
 
-  return score;
+  return { score, contentScore };
 }
 
 export type RetrievalResult = {
@@ -51,22 +60,26 @@ export function retrieveArticles(
   category: Category,
   limit = 3
 ): RetrievalResult {
-  const scored = KB_ARTICLES.map((article) => ({
-    article,
-    score: scoreArticle(article, message, category),
-  }))
+  const scored = KB_ARTICLES.map((article) => {
+    const { score, contentScore } = scoreArticle(article, message, category);
+    return { article, score, contentScore };
+  })
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 
-  const topScore = scored[0]?.score ?? 0;
+  const top = scored[0];
   const articles = scored.map(({ article }) => article);
   const kbLinks = articles.map((a) => ({ title: a.title, url: a.link }));
 
   return {
     articles,
     kbLinks,
-    canAnswer: topScore >= SCORE_THRESHOLD && articles.length > 0,
+    canAnswer:
+      Boolean(top) &&
+      top.score >= SCORE_THRESHOLD &&
+      top.contentScore >= MIN_CONTENT_SCORE &&
+      articles.length > 0,
   };
 }
 

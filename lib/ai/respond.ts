@@ -74,6 +74,7 @@ export function streamAssistantResponse(options: {
       studentName,
       studentEmail,
       showEmergency: triage.showEmergencyBanner,
+      showCrisisSupport: triage.showCrisisSupport,
       isSpam: false,
     }),
     messages: buildResponseMessages(history, userMessage),

@@ -45,13 +45,17 @@ export function buildEscalatePrompt(options: {
   studentName: string;
   studentEmail: string;
   showEmergency: boolean;
+  showCrisisSupport?: boolean;
   isSpam: boolean;
 }): string {
   const emergencyBlock = options.showEmergency
     ? `\nIMPORTANT: Include these emergency contacts prominently:
 - Call 999 for immediate danger to life or safety
 - Samaritans: 116 123 (free, 24/7 emotional support)`
-    : "";
+    : options.showCrisisSupport
+      ? `\nIMPORTANT: Include this support contact:
+- Samaritans: 116 123 (free, 24/7 emotional support)`
+      : "";
 
   if (options.isSpam) {
     return `You are a university welfare assistant. The message appears to be spam or an attempt to manipulate the system.

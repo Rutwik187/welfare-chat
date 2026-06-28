@@ -23,7 +23,8 @@ import {
 } from "@/lib/ai/respond";
 import { writeStaticAssistantText } from "@/lib/ai/stream-fallback";
 import { runTriage } from "@/lib/ai/triage";
-import type { WelfareUIMessage } from "@/lib/ai/types";
+import type { MessageSource, WelfareUIMessage } from "@/lib/ai/types";
+import { visibleSources } from "@/lib/ai/types";
 import { retrieveArticles } from "@/lib/knowledge-base/retrieval";
 import { generateId, getMessageText } from "@/lib/utils/messages";
 
@@ -32,21 +33,42 @@ type ChatRequestBody = {
   conversationId: string;
 };
 
+function writeMessageSources(
+  writer: UIMessageStreamWriter<WelfareUIMessage>,
+  sources: MessageSource[]
+) {
+  if (sources.length === 0) return;
+
+  writer.write({
+    type: "message-metadata",
+    messageMetadata: { sources },
+  });
+}
+
 async function streamAssistantOrFallback(
   writer: UIMessageStreamWriter<WelfareUIMessage>,
-  options: Parameters<typeof streamAssistantResponse>[0]
+  options: Parameters<typeof streamAssistantResponse>[0] & {
+    sources: MessageSource[];
+  }
 ) {
+  const { sources, ...streamOptions } = options;
+
   try {
-    const result = streamAssistantResponse(options);
+    const result = streamAssistantResponse(streamOptions);
     writer.merge(
       toUIMessageStream({
         stream: result.stream,
+        messageMetadata: ({ part }) => {
+          if (part.type === "start" && sources.length > 0) {
+            return { sources };
+          }
+        },
         onError: (error) => {
           console.error("[chat] response stream error:", error);
           return getFallbackAssistantMessage({
-            triage: options.triage,
-            studentName: options.studentName,
-            studentEmail: options.studentEmail,
+            triage: streamOptions.triage,
+            studentName: streamOptions.studentName,
+            studentEmail: streamOptions.studentEmail,
           });
         },
       })
@@ -55,12 +77,13 @@ async function streamAssistantOrFallback(
     if (isAiQuotaOrRateLimitError(error)) {
       console.warn("[chat] Gemini quota/rate limit — static fallback response");
     }
+    writeMessageSources(writer, sources);
     writeStaticAssistantText(
       writer,
       getFallbackAssistantMessage({
-        triage: options.triage,
-        studentName: options.studentName,
-        studentEmail: options.studentEmail,
+        triage: streamOptions.triage,
+        studentName: streamOptions.studentName,
+        studentEmail: streamOptions.studentEmail,
       })
     );
   }
@@ -124,6 +147,11 @@ export async function processChatRequest(body: ChatRequestBody) {
         kbCanAnswer: retrieval.canAnswer,
       });
 
+      const groundedSources =
+        triage.disposition === "handle_now" && retrieval.canAnswer
+          ? visibleSources(retrieval.kbLinks)
+          : [];
+
       const staffSummaryPromise =
         triage.disposition === "escalate" && shouldCreateCase(triage)
           ? generateStaffSummary(userMessage, triage)
@@ -181,7 +209,6 @@ export async function processChatRequest(body: ChatRequestBody) {
         type: "data-metadata",
         data: {
           emergency: triage.showEmergencyBanner,
-          sources: retrieval.kbLinks,
           disposition: triage.disposition,
         },
         transient: true,
@@ -194,16 +221,20 @@ export async function processChatRequest(body: ChatRequestBody) {
         userMessage,
         studentName: conversation.studentName,
         studentEmail: conversation.studentEmail,
+        sources: groundedSources,
       });
     },
     onFinish: async ({ responseMessage }) => {
       const assistantText = getMessageText(responseMessage);
+      const sources = visibleSources(responseMessage.metadata?.sources);
+
       if (assistantText.trim()) {
         await db.insert(messages).values({
           id: generateId(),
           conversationId,
           role: "assistant",
           content: assistantText,
+          sources: sources.length > 0 ? sources : null,
         });
       }
     },

@@ -20,5 +20,6 @@ export type TriageResult = z.infer<typeof triageSchema>;
 
 export type FinalTriage = TriageResult & {
   showEmergencyBanner: boolean;
+  showCrisisSupport?: boolean;
   forceEscalateReason?: string;
 };

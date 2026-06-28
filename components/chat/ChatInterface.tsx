@@ -28,6 +28,7 @@ import {
 import { Shimmer } from "@/components/ai-elements/shimmer";
 import { EmergencyBanner } from "@/components/chat/EmergencyBanner";
 import type { WelfareUIMessage } from "@/lib/ai/types";
+import { visibleSources } from "@/lib/ai/types";
 
 type ChatInterfaceProps = {
   conversationId: string;
@@ -55,9 +56,6 @@ export function ChatInterface({
 }: ChatInterfaceProps) {
   const [input, setInput] = useState("");
   const [showEmergency, setShowEmergency] = useState(false);
-  const [latestSources, setLatestSources] = useState<
-    { title: string; url: string }[]
-  >([]);
 
   const initialMessages = useMemo(
     () => [buildWelcomeMessage(studentName)],
@@ -74,13 +72,13 @@ export function ChatInterface({
   );
 
   const handleData = useCallback(
-    (dataPart: { type: string; data?: { emergency?: boolean; sources?: { title: string; url: string }[] } }) => {
+    (dataPart: {
+      type: string;
+      data?: { emergency?: boolean };
+    }) => {
       if (dataPart.type !== "data-metadata" || !dataPart.data) return;
       if (dataPart.data.emergency) {
         setShowEmergency(true);
-      }
-      if (dataPart.data.sources?.length) {
-        setLatestSources(dataPart.data.sources);
       }
     },
     []
@@ -126,6 +124,7 @@ export function ChatInterface({
                 (p) => p.type === "text" && p.text.length > 0
               );
               const showShimmer = isLastAssistant && isStreaming && !hasText;
+              const messageSources = visibleSources(message.metadata?.sources);
 
               return (
                 <Message from={message.role} key={message.id}>
@@ -145,13 +144,12 @@ export function ChatInterface({
                       })
                     )}
                     {message.role === "assistant" &&
-                    isLastAssistant &&
-                    latestSources.length > 0 &&
-                    !isStreaming ? (
+                    messageSources.length > 0 &&
+                    (!isLastAssistant || !isStreaming) ? (
                       <Sources className="mt-2">
-                        <SourcesTrigger count={latestSources.length} />
+                        <SourcesTrigger count={messageSources.length} />
                         <SourcesContent>
-                          {latestSources.map((source) => (
+                          {messageSources.map((source) => (
                             <Source
                               href={source.url}
                               key={source.url}

@@ -61,14 +61,14 @@ run(
   "Crisis — feeling low, not eating",
   "Hi, I've been feeling really low for weeks, I haven't left my room or eaten properly in days and I don't really see the point of anything anymore.",
   { category: "health_wellbeing", urgency: "high", safeguarding: true, disposition: "escalate" },
-  { disposition: "escalate", safeguarding: true, showEmergency: true }
+  { disposition: "escalate", safeguarding: true, showEmergency: false }
 );
 
 run(
   "Visa + CAS withdrawn",
   "My visa expires in 9 days and my university just withdrew my CAS. I don't know what happens to me now, please help urgently.",
   { category: "visa_immigration", urgency: "critical", disposition: "escalate" },
-  { disposition: "escalate" }
+  { disposition: "escalate", showEmergency: true }
 );
 
 run(
@@ -110,7 +110,7 @@ run(
   "Job loss + mental health",
   "I just lost my part-time job, I'm really stressed about money, and honestly my mental health has been going downhill because of it.",
   { category: "financial", safeguarding: true, disposition: "escalate" },
-  { disposition: "escalate", safeguarding: true, showEmergency: true }
+  { disposition: "escalate", safeguarding: true, showEmergency: false }
 );
 
 run(

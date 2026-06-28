@@ -4,7 +4,7 @@ A conversational AI welfare assistant for university student support. Students c
 
 ## Live demo
 
-> **Set your deployed URL here after running `vercel deploy`.**
+Deploy with `vercel deploy`, then set your production URL here (e.g. `https://your-app.vercel.app`).
 
 ## Staff login (assessment)
 
@@ -85,6 +85,12 @@ Student message → POST /api/chat
 
 **Stack:** Next.js 16, Neon PostgreSQL, Drizzle ORM, Better Auth, Gemini via Vercel AI SDK, AI Elements + shadcn/ui.
 
+The staff dashboard is server-rendered (RSC) with a server action for case status updates — no client-side data-fetch waterfalls.
+
+## Known limitation (assessment build)
+
+Staff sign-up via email/password is enabled for easy local setup. In production this would be disabled (`disableSignUp: true`), with invite-only staff accounts and role-based access on dashboard routes.
+
 ## Deploy to Vercel
 
 1. Push to GitHub and import in [Vercel](https://vercel.com).
@@ -110,4 +116,5 @@ Every message is classified by AI into a category, urgency, and a suggested acti
 
 - Spam/jailbreak messages are declined safely and do **not** create staff cases (by design).
 - Immigration questions always escalate; the assistant may link to GOV.UK but never advises on individual circumstances.
+- KB sources appear only on grounded `handle_now` replies (not on escalate/clarify).
 - All 8 test messages from the assessment brief are covered in `scripts/test-scenarios.ts`.

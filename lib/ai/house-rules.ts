@@ -26,6 +26,7 @@ export function applyHouseRules({
   const result: FinalTriage = {
     ...triage,
     showEmergencyBanner: false,
+    showCrisisSupport: false,
   };
 
   const immediateDanger = matchesAny(message, IMMEDIATE_DANGER_PATTERNS);
@@ -44,6 +45,7 @@ export function applyHouseRules({
       safeguarding: true,
       disposition: "escalate",
       showEmergencyBanner: true,
+      showCrisisSupport: true,
       forceEscalateReason: "immediate_danger",
     };
   }
@@ -55,7 +57,7 @@ export function applyHouseRules({
       result.urgency === "low" || result.urgency === "medium"
         ? "high"
         : result.urgency;
-    result.showEmergencyBanner = true;
+    result.showCrisisSupport = true;
     result.forceEscalateReason = "safeguarding";
   }
 
@@ -76,13 +78,13 @@ export function applyHouseRules({
     result.safeguarding = true;
     result.disposition = "escalate";
     result.category = "health_wellbeing";
-    result.showEmergencyBanner = true;
+    result.showCrisisSupport = true;
     result.forceEscalateReason = "harassment";
   }
 
   if (result.safeguarding && result.disposition === "handle_now") {
     result.disposition = "escalate";
-    result.showEmergencyBanner = true;
+    result.showCrisisSupport = true;
   }
 
   if (spamOrJailbreak) {
@@ -91,6 +93,7 @@ export function applyHouseRules({
     result.safeguarding = false;
     result.disposition = "escalate";
     result.isSpamOrAbuse = true;
+    result.showCrisisSupport = false;
     result.forceEscalateReason = "spam_or_jailbreak";
   }
 
@@ -126,6 +129,7 @@ export function applyHouseRules({
     result.urgency === "critical"
   ) {
     result.showEmergencyBanner = true;
+    result.showCrisisSupport = true;
   }
 
   return result;

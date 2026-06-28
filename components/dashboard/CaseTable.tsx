@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,22 +8,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { CaseRow } from "@/lib/dashboard/queries";
 
-export type CaseRow = {
-  id: string;
-  studentName: string;
-  studentEmail: string;
-  category: string;
-  urgency: string;
-  safeguarding: boolean;
-  staffSummary: string;
-  status: string;
-  priorityScore: number;
-  createdAt: string;
-  updatedAt: string;
-};
-
-const urgencyVariant: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+const urgencyVariant: Record<
+  string,
+  "default" | "secondary" | "destructive" | "outline"
+> = {
   critical: "destructive",
   high: "destructive",
   medium: "secondary",
@@ -65,9 +53,9 @@ export function CaseTable({ cases }: { cases: CaseRow[] }) {
           >
             <TableCell>
               <div className="flex flex-wrap gap-1">
-                {caseRow.safeguarding && (
+                {caseRow.safeguarding ? (
                   <Badge variant="destructive">Safeguarding</Badge>
-                )}
+                ) : null}
                 <Badge variant={urgencyVariant[caseRow.urgency] ?? "outline"}>
                   {caseRow.urgency}
                 </Badge>
@@ -91,7 +79,9 @@ export function CaseTable({ cases }: { cases: CaseRow[] }) {
               {caseRow.staffSummary}
             </TableCell>
             <TableCell>
-              <Badge variant="outline">{caseRow.status.replace("_", " ")}</Badge>
+              <Badge variant="outline">
+                {caseRow.status.replace("_", " ")}
+              </Badge>
             </TableCell>
             <TableCell className="text-sm text-muted-foreground">
               {new Date(caseRow.updatedAt).toLocaleString()}
